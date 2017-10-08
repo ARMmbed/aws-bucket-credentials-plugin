@@ -41,7 +41,7 @@ public class AwsBucketCredentialsImpl extends BaseStandardCredentials implements
     private boolean kmsProxy;
     private String proxyHost;
     private String proxyPort;
-
+    private Secret password;
 
     private static final Logger LOGGER = Logger.getLogger(AwsBucketCredentialsImpl.class.getName());
 
@@ -72,6 +72,11 @@ public class AwsBucketCredentialsImpl extends BaseStandardCredentials implements
         if (kmsProxy) {
             this.amazonKmsClientBuilder.proxyHost(proxyHost).proxyPort(Integer.parseInt(proxyPort));
         }
+
+        byte[] encryptedString = this.readS3BucketContents();
+        String rawString = this.decryptString(encryptedString);
+        this.password = Secret.fromString(rawString);
+
     }
 
     public boolean isKmsProxy() {
@@ -98,9 +103,10 @@ public class AwsBucketCredentialsImpl extends BaseStandardCredentials implements
     @NonNull
     @Override
     public Secret getPassword() {
-        byte[] encryptedString = this.readS3BucketContents();
-        String rawString = this.decryptString(encryptedString);
-        return Secret.fromString(rawString);
+        //byte[] encryptedString = this.readS3BucketContents();
+        //String rawString = this.decryptString(encryptedString);
+        //return Secret.fromString(rawString);
+	return password;
     }
 
     private byte[] readS3BucketContents() {
